@@ -8,7 +8,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -46,21 +46,21 @@ jobs:
         release_name: Release ${{ github.ref }}
         body: |
           ## BookTrack ${{ github.ref_name }}
-          
+
           ### Features
           - Book and Author management
           - SMS notifications
           - Reports and analytics
           - File uploads
           - User authentication
-          
+
           ### Installation
           1. Extract the archive
           2. Run `composer install`
           3. Configure database in `.env`
           4. Run `php yii migrate`
           5. Set up web server
-          
+
           ### Requirements
           - PHP 8.2+
           - MySQL 8.0+

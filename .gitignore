@@ -16,6 +16,7 @@ Thumbs.db
 
 # Composer
 /vendor/
+composer.phar
 # composer.lock - keep for reproducible builds
 
 # Yii2
