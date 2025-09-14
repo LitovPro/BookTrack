@@ -12,8 +12,11 @@
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.0+-7952B3?style=flat-square&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
 
 [![CI/CD](https://github.com/LitovPro/BookTrack/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/LitovPro/BookTrack/actions)
+[![Deploy to GitHub Pages](https://github.com/LitovPro/BookTrack/workflows/Deploy%20to%20GitHub%20Pages/badge.svg)](https://github.com/LitovPro/BookTrack/actions/workflows/deploy.yml)
 [![Code Quality](https://img.shields.io/badge/Code%20Quality-PSR--12%20%7C%20PHPStan%20Level%206-green?style=flat-square)](https://github.com/LitovPro/BookTrack)
 [![Tests](https://img.shields.io/badge/Tests-Codeception-blue?style=flat-square)](https://github.com/LitovPro/BookTrack)
+
+**🌐 Демо-версия: [Посетить BookTrack](https://litovpro.github.io/BookTrack/)**
 
 </div>
 

@@ -1,0 +1,79 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, mysql, zip
+
+      - name: Install Composer dependencies
+        run: |
+          composer install --prefer-dist --no-dev --no-progress --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp env.example .env
+          sed -i 's/generate_a_random_key_here/'$(openssl rand -base64 32)'/g' .env
+          mkdir -p web/uploads/books
+
+      - name: Generate .htaccess for GitHub Pages
+        run: |
+          echo "RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^(.*)$ index.php [L]" > web/.htaccess
+
+      - name: Prepare deployment directory
+        run: |
+          mkdir -p _site
+          cp -r vendor _site/
+          cp -r web _site/
+          cp -r config _site/
+          cp -r models _site/
+          cp -r controllers _site/
+          cp -r views _site/
+          cp -r services _site/
+          cp -r migrations _site/
+          cp .env _site/
+          cp yii _site/
+          cp index.php _site/
+
+          # Cleanup unnecessary files
+          find _site/vendor -type d \( -name "tests" -o -name "docs" -o -name "examples" \) -exec rm -rf {} +
+          find _site/vendor -type f \( -name "*.md" -o -name "LICENSE" -o -name "CHANGELOG" \) -delete
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './_site'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
