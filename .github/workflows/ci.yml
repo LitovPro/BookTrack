@@ -1,13 +1,13 @@
-name: CI/CD Pipeline
+name: BookTrack CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     services:
@@ -16,15 +16,13 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: booktrack_test
-          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -proot"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
           --health-interval=10s
-          --health-timeout=20s
-          --health-retries=20
-          --health-start-period=60s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
     - uses: actions/checkout@v4
@@ -36,82 +34,48 @@ jobs:
         extensions: mbstring, dom, fileinfo, mysql, zip
         coverage: xdebug
 
-    - name: Get composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
 
-    - name: Cache composer dependencies
+    - name: Cache Composer packages
+      id: composer-cache
       uses: actions/cache@v3
       with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-composer-
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress
 
-    - name: Copy environment file
+    - name: Prepare environment
       run: |
-        if [ -f .env.example ]; then
-          cp .env.example .env
-        else
-          echo "Creating basic .env file"
-          echo "DB_DSN=mysql:host=127.0.0.1;dbname=booktrack" > .env
-          echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=" >> .env
-          echo "SMS_PILOT_API_KEY=эмулятор" >> .env
-        fi
+        cp .env.example .env
+        mkdir -p web/uploads/books
 
-    - name: Set environment variables
+    - name: Wait for MySQL
       run: |
-        echo "DB_DSN=mysql:host=127.0.0.1;port=3306;dbname=booktrack_test;charset=utf8mb4" > .env
-        echo "DB_USERNAME=root" >> .env
-        echo "DB_PASSWORD=root" >> .env
-        echo "SMS_PILOT_API_KEY=test_key" >> .env
-        echo "YII_DEBUG=false" >> .env
-        echo "YII_ENV=test" >> .env
-
-    - name: Create uploads directory
-      run: mkdir -p web/uploads/books
-
-    - name: Install MySQL client
-      run: sudo apt-get update && sudo apt-get install -y mysql-client
-
-    - name: Wait for MySQL to be ready
-      run: |
-        echo "Waiting for MySQL to be ready..."
-        sleep 90
-        echo "MySQL should be ready now"
-
-    - name: Test MySQL connection
-      run: |
-        echo "Testing MySQL connection..."
-        mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1;" || echo "Connection failed, but continuing..."
-        echo "Testing MySQL with database..."
-        mysql -h 127.0.0.1 -P 3306 -u root -proot booktrack_test -e "SELECT 1;" || echo "Database connection failed, but continuing..."
+        for i in {1..30}; do
+          mysql -h127.0.0.1 -uroot -proot -e "SELECT 1" && break || sleep 2
+        done
 
     - name: Run database migrations
-      run: |
-        echo "Current .env file contents:"
-        cat .env
-        echo "Running migrations..."
-        php yii migrate --interactive=0
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: booktrack_test
+        DB_USERNAME: root
+        DB_PASSWORD: root
+        YII_ENV: test
+        YII_DEBUG: false
+      run: php yii migrate --interactive=0
 
-    - name: Project setup completed
-      run: echo "BookTrack project is ready!"
+    - name: Run PHPStan
+      run: composer stan
 
-  security:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Security check
-      run: echo "Security check passed"
+    - name: Run CodeSniffer
+      run: composer cs
 
-  deploy:
-    needs: [test, security]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-    - uses: actions/checkout@v4
-    - name: Deploy
-      run: echo "Deployment completed successfully"
+    - name: Run tests
+      run: composer test
