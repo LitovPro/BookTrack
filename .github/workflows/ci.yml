@@ -58,13 +58,29 @@ jobs:
 
     - name: Set environment variables
       run: |
-        echo "DB_DSN=mysql:host=127.0.0.1;port=3306;dbname=booktrack_test" >> .env
+        echo "DB_DSN=mysql:host=127.0.0.1;port=3306;dbname=booktrack_test" > .env
         echo "DB_USERNAME=root" >> .env
         echo "DB_PASSWORD=root" >> .env
         echo "SMS_PILOT_API_KEY=test_key" >> .env
+        echo "YII_DEBUG=false" >> .env
+        echo "YII_ENV=test" >> .env
 
     - name: Create uploads directory
       run: mkdir -p web/uploads/books
+
+    - name: Install MySQL client
+      run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+    - name: Wait for MySQL to be ready
+      run: |
+        for i in {1..30}; do
+          if mysqladmin ping -h 127.0.0.1 -P 3306 -u root -proot --silent; then
+            echo "MySQL is ready!"
+            break
+          fi
+          echo "Waiting for MySQL... ($i/30)"
+          sleep 2
+        done
 
     - name: Run database migrations
       run: php yii migrate --interactive=0
