@@ -50,7 +50,22 @@ jobs:
 
     - name: Prepare environment
       run: |
-        cp .env.example .env
+        # Create a clean .env file without leading spaces
+        cat > .env <<'ENV'
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=booktrack_test
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_CHARSET=utf8mb4
+YII_ENV=test
+YII_DEBUG=false
+SMS_PILOT_API_KEY=test_key
+ENV
+        # Append a random cookie validation key
+        echo "COOKIE_VALIDATION_KEY=$(openssl rand -base64 32)" >> .env
+        # Normalize line endings
+        sed -i 's/\r$//' .env || true
         mkdir -p web/uploads/books
 
     - name: Wait for MySQL
