@@ -29,8 +29,19 @@ jobs:
 
       - name: Prepare environment
         run: |
-          cp env.example .env
-          sed -i 's/generate_a_random_key_here/'$(openssl rand -base64 32)'/g' .env
+          # Create clean .env from example values (avoid BOM and sed issues)
+          cat > .env <<'ENV'
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=booktrack
+DB_USERNAME=root
+DB_PASSWORD=
+DB_CHARSET=utf8mb4
+YII_DEBUG=false
+YII_ENV=prod
+ENV
+          # Append generated cookie validation key
+          echo "COOKIE_VALIDATION_KEY=$(openssl rand -base64 32)" >> .env
           mkdir -p web/uploads/books
 
       - name: Generate .htaccess for GitHub Pages
