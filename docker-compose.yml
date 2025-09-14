@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: booktrack
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - db
+    volumes:
+      - ./:/var/www/html:delegated
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: booktrack
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
