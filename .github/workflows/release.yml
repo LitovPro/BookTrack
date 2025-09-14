@@ -1,0 +1,79 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Run tests
+      run: composer test
+
+    - name: Create release archive
+      run: |
+        zip -r BookTrack-${{ github.ref_name }}.zip . \
+          -x "*.git*" \
+          -x "*.github*" \
+          -x "tests/*" \
+          -x "vendor/*" \
+          -x "runtime/*" \
+          -x "web/assets/*" \
+          -x "*.log" \
+          -x "*.tmp"
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## BookTrack ${{ github.ref_name }}
+          
+          ### Features
+          - Book and Author management
+          - SMS notifications
+          - Reports and analytics
+          - File uploads
+          - User authentication
+          
+          ### Installation
+          1. Extract the archive
+          2. Run `composer install`
+          3. Configure database in `.env`
+          4. Run `php yii migrate`
+          5. Set up web server
+          
+          ### Requirements
+          - PHP 8.2+
+          - MySQL 8.0+
+          - Composer
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./BookTrack-${{ github.ref_name }}.zip
+        asset_name: BookTrack-${{ github.ref_name }}.zip
+        asset_content_type: application/zip

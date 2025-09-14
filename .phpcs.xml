@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<ruleset name="BookTrack">
+    <description>PHP CodeSniffer configuration for BookTrack project</description>
+
+    <!-- What to scan -->
+    <file>.</file>
+
+    <!-- Exclude patterns -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/runtime/*</exclude-pattern>
+    <exclude-pattern>*/web/assets/*</exclude-pattern>
+    <exclude-pattern>*/tests/_output/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+
+    <!-- How to scan -->
+    <arg name="colors"/>
+    <arg name="parallel" value="80"/>
+    <arg name="cache" value=".phpcs-cache"/>
+
+    <!-- Rules: Check PHP code only -->
+    <rule ref="PSR12"/>
+
+    <!-- Custom rules -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="140"/>
+        </properties>
+    </rule>
+
+    <rule ref="Generic.Commenting.DocComment">
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+        <exclude name="Squiz.Commenting.FunctionComment.MissingReturn"/>
+    </rule>
+</ruleset>
+

@@ -1,0 +1,16 @@
+parameters:
+    level: 6
+    paths:
+        - .
+    excludePaths:
+        - vendor
+        - runtime
+        - web/assets
+        - tests/_output
+        - node_modules
+    ignoreErrors:
+        - '#Call to an undefined method yii\\db\\ActiveRecord::getFirstErrors\(\)#'
+        - '#Call to an undefined method yii\\db\\ActiveRecord::getAttributes\(\)#'
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+

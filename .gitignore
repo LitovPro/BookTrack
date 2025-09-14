@@ -1,0 +1,54 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Composer
+/vendor/
+# composer.lock - keep for reproducible builds
+
+# Yii2
+/runtime/
+/web/assets/
+/web/index-test.php
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+
+# Cache
+.phpcs-cache
+.phpstan-cache
+
+# Test output
+/tests/_output/
+/tests/_support/_generated/
+
+# Uploads
+/web/uploads/*
+!/web/uploads/.gitkeep
+
+# Node modules (if using npm/yarn)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Demo files
+/demo_files/
+BookTrack_Demo.zip

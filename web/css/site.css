@@ -1,0 +1,131 @@
+/* Global styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Main content */
+main {
+    padding-top: 80px;
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Tables */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Micro spacing improvements */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.invalid-feedback {
+    margin-top: 0.3rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Slightly more space between form elements */
+.form-control {
+    margin-bottom: 0.1rem;
+}
+
+/* Better spacing for buttons */
+.btn {
+    margin-bottom: 0.3rem;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 4px;
+}
+
+/* Book cover */
+.book-cover {
+    max-width: 200px;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.book-cover-small {
+    max-width: 60px;
+    max-height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Author info */
+.author-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* Subscription form */
+.subscription-form {
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+/* Report table */
+.report-table .rank {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .book-cover {
+        max-width: 150px;
+        max-height: 225px;
+    }
+
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Flash messages */
+.alert {
+    border-radius: 4px;
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa !important;
+    border-top: 1px solid #dee2e6;
+}
+
