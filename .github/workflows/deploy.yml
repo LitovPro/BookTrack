@@ -29,17 +29,8 @@ jobs:
 
       - name: Prepare environment
         run: |
-          # Create clean .env from example values (avoid BOM and sed issues)
-          cat > .env <<'ENV'
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=booktrack
-DB_USERNAME=root
-DB_PASSWORD=
-DB_CHARSET=utf8mb4
-YII_DEBUG=false
-YII_ENV=prod
-ENV
+          # Create a clean .env file using printf to avoid heredoc/quotes issues
+          printf 'DB_HOST=127.0.0.1\nDB_PORT=3306\nDB_NAME=booktrack\nDB_USERNAME=root\nDB_PASSWORD=\nDB_CHARSET=utf8mb4\nYII_DEBUG=false\nYII_ENV=prod\n' > .env
           # Append generated cookie validation key
           echo "COOKIE_VALIDATION_KEY=$(openssl rand -base64 32)" >> .env
           mkdir -p web/uploads/books
