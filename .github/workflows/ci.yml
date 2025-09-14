@@ -45,7 +45,16 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
 
     - name: Copy environment file
-      run: cp .env.example .env
+      run: |
+        if [ -f .env.example ]; then
+          cp .env.example .env
+        else
+          echo "Creating basic .env file"
+          echo "DB_DSN=mysql:host=127.0.0.1;dbname=booktrack" > .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=" >> .env
+          echo "SMS_PILOT_API_KEY=эмулятор" >> .env
+        fi
 
     - name: Set environment variables
       run: |
@@ -74,7 +83,7 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
 
