@@ -64,7 +64,7 @@ jobs:
 
     - name: Set environment variables
       run: |
-        echo "DB_DSN=mysql:host=127.0.0.1;port=3306;dbname=booktrack_test" > .env
+        echo "DB_DSN=mysql:host=127.0.0.1;port=3306;dbname=booktrack_test;charset=utf8mb4" > .env
         echo "DB_USERNAME=root" >> .env
         echo "DB_PASSWORD=root" >> .env
         echo "SMS_PILOT_API_KEY=test_key" >> .env
@@ -87,9 +87,15 @@ jobs:
       run: |
         echo "Testing MySQL connection..."
         mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1;" || echo "Connection failed, but continuing..."
+        echo "Testing MySQL with database..."
+        mysql -h 127.0.0.1 -P 3306 -u root -proot booktrack_test -e "SELECT 1;" || echo "Database connection failed, but continuing..."
 
     - name: Run database migrations
-      run: php yii migrate --interactive=0
+      run: |
+        echo "Current .env file contents:"
+        cat .env
+        echo "Running migrations..."
+        php yii migrate --interactive=0
 
     - name: Project setup completed
       run: echo "BookTrack project is ready!"
