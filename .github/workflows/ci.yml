@@ -16,9 +16,15 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: booktrack_test
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot"
+          --health-interval=5s
+          --health-timeout=10s
+          --health-retries=10
+          --health-start-period=30s
 
     steps:
     - uses: actions/checkout@v4
@@ -73,17 +79,49 @@ jobs:
 
     - name: Wait for MySQL to be ready
       run: |
-        for i in {1..30}; do
+        echo "Waiting for MySQL to be fully ready..."
+        for i in {1..60}; do
           if mysqladmin ping -h 127.0.0.1 -P 3306 -u root -proot --silent; then
-            echo "MySQL is ready!"
-            break
+            echo "MySQL ping successful, testing connection..."
+            if mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SELECT 1;" > /dev/null 2>&1; then
+              echo "MySQL is fully ready!"
+              break
+            else
+              echo "MySQL ping OK but connection failed, waiting... ($i/60)"
+            fi
+          else
+            echo "MySQL not ready yet... ($i/60)"
           fi
-          echo "Waiting for MySQL... ($i/30)"
-          sleep 2
+          sleep 3
         done
+        
+        # Final verification
+        echo "Final MySQL connection test..."
+        mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SHOW DATABASES;"
 
     - name: Run database migrations
-      run: php yii migrate --interactive=0
+      run: |
+        echo "Waiting additional 5 seconds for MySQL to stabilize..."
+        sleep 5
+        
+        echo "Testing database connection with Yii..."
+        php -r "
+        require_once 'vendor/autoload.php';
+        \$config = require 'config/console.php';
+        \$app = new yii\console\Application(\$config);
+        try {
+            \$db = \$app->db;
+            \$db->open();
+            echo 'Database connection successful!' . PHP_EOL;
+            \$db->close();
+        } catch (Exception \$e) {
+            echo 'Database connection failed: ' . \$e->getMessage() . PHP_EOL;
+            exit(1);
+        }
+        "
+        
+        echo "Running migrations..."
+        php yii migrate --interactive=0
 
     - name: Run code style check
       run: composer cs
